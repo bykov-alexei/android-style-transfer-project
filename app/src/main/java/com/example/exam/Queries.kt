@@ -1,7 +1,9 @@
 package com.example.exam
 
 import android.content.Context
+import android.widget.Button
 import android.widget.ImageView
+import android.widget.TextView
 import okhttp3.MultipartBody
 import retrofit2.Call
 import retrofit2.http.Multipart
@@ -14,6 +16,10 @@ class Queries {
         const val API_URL = "http://93.94.183.99:8000"
         lateinit var context: Context
         lateinit var imageView: ImageView
+        lateinit var processButton: Button
+        lateinit var textView: TextView
+        lateinit var shareButton: Button
+        lateinit var url: String
     }
 
     interface Transfer {

@@ -13,6 +13,7 @@ import android.util.Log
 import android.view.View
 import android.widget.Button
 import android.widget.ImageView
+import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.FileProvider
@@ -32,6 +33,8 @@ class MainActivity : AppCompatActivity() {
     lateinit var imageView: ImageView
     lateinit var takePhotoButton: Button
     lateinit var processButton: Button
+    lateinit var shareButton: Button
+    lateinit var textView: TextView
 
     val REQUEST_TAKE_PHOTO = 2001
     var currentPhotoPath: String? = null
@@ -48,10 +51,15 @@ class MainActivity : AppCompatActivity() {
         setContentView(R.layout.activity_main)
         imageView = findViewById(R.id.galleryView)
         takePhotoButton = findViewById(R.id.takePhotoButton)
+        shareButton = findViewById(R.id.sharePhotoButton)
         processButton = findViewById(R.id.processPhotoButton)
+        textView = findViewById(R.id.textView)
 
         Queries.context = this
         Queries.imageView = imageView
+        Queries.textView = textView
+        Queries.shareButton = shareButton
+        Queries.processButton = processButton
     }
 
     fun onTakePhotoClick(v: View) {
@@ -71,6 +79,13 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
+    fun onSharePhotoClick(v: View) {
+        val intent = Intent(Intent.ACTION_SEND)
+        intent.putExtra(Intent.EXTRA_TEXT, Queries.url)
+        intent.type = "text/plain"
+        startActivity(intent)
+    }
+
     fun onProcessPhotoClick(v: View) {
         val api = retrofit.create(Queries.Transfer::class.java)
 
@@ -85,9 +100,12 @@ class MainActivity : AppCompatActivity() {
         override fun onResponse(call: Call<String>, response: Response<String>) {
             if (response.isSuccessful) {
                 val uuid_result = response.body()!!
-                val url = "http://93.94.183.99:8000/image/${uuid_result}"
+                Queries.url = "http://93.94.183.99:8000/image/${uuid_result}"
                 val pic = Picasso.Builder(Queries.context).build()
-                pic.load(url).error(R.drawable.ic_launcher_background).into(Queries.imageView)
+                pic.load(Queries.url).error(R.drawable.ic_launcher_background).into(Queries.imageView)
+                Queries.processButton.visibility = View.INVISIBLE
+                Queries.shareButton.visibility = View.VISIBLE
+                Queries.textView.visibility = View.VISIBLE
             } else {
                 Log.d("query", "error: ${response.code()}")
                 Log.d("query", "error: ${response.raw()}")
