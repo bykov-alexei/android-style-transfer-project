@@ -27,6 +27,7 @@ import retrofit2.converter.scalars.ScalarsConverterFactory
 import java.io.*
 import java.text.SimpleDateFormat
 import java.util.*
+import java.util.concurrent.TimeUnit
 
 
 class MainActivity : AppCompatActivity() {
@@ -41,7 +42,14 @@ class MainActivity : AppCompatActivity() {
     var image: Bitmap? = null
     var f: File? = null
 
+    val okHttpClient = OkHttpClient.Builder()
+        .connectTimeout(20, TimeUnit.SECONDS)
+        .writeTimeout(20, TimeUnit.SECONDS)
+        .readTimeout(50000, TimeUnit.SECONDS)
+        .build()
+
     val retrofit = Retrofit.Builder()
+        .client(okHttpClient)
         .addConverterFactory(ScalarsConverterFactory.create())
         .baseUrl(Queries.API_URL)
         .build()
@@ -63,6 +71,9 @@ class MainActivity : AppCompatActivity() {
     }
 
     fun onTakePhotoClick(v: View) {
+        textView.visibility = View.INVISIBLE
+        shareButton.visibility = View.INVISIBLE
+
         val intent = Intent(MediaStore.ACTION_IMAGE_CAPTURE);
         if (intent.resolveActivity(packageManager) != null) {
             var photoFile: File? = null
